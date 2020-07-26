@@ -64,33 +64,46 @@ class _HomeScreenState extends State<HomeScreen> {
 
 class EditPage extends StatelessWidget {
   final input = TextEditingController();
+  final _key = GlobalKey<FormState>();
+  final validCharacters = RegExp(r'^[a-zA-Z ]+$');
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Edit your name'),
-      ),
-      body: Column(
-        children: <Widget>[
-          Expanded(
-            child: Center(
-                child: Container(
-              margin: const EdgeInsets.only(left: 20.0, right: 20.0),
-              child: TextField(
-                controller: input,
+        appBar: AppBar(
+          title: Text('Edit your name'),
+        ),
+        body: Form(
+          key: _key,
+          child: Column(
+            children: <Widget>[
+              Expanded(
+                child: Center(
+                    child: Container(
+                  margin: const EdgeInsets.only(left: 20.0, right: 20.0),
+                  child: TextFormField(
+                    controller: input,
+                    validator: (value) {
+                      if (!validCharacters.hasMatch(value)) {
+                        return "Name should only contain letters";
+                      } else {
+                        return null;
+                      }
+                    },
+                  ),
+                )),
               ),
-            )),
+              Align(
+                  alignment: Alignment.bottomCenter,
+                  child: RaisedButton(
+                    onPressed: () {
+                      if (_key.currentState.validate()){
+                        Navigator.pop(context, input.text);
+                      }
+                    },
+                    child: Text('Save'),
+                  ))
+            ],
           ),
-          Align(
-              alignment: Alignment.bottomCenter,
-              child: RaisedButton(
-                onPressed: () {
-                  Navigator.pop(context, input.text);
-                },
-                child: Text('Save'),
-              ))
-        ],
-      ),
-    );
+        ));
   }
 }
