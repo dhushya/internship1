@@ -6,9 +6,10 @@ void main() {
   runApp(MyApp());
 }
 
+final FirebaseAnalytics analytics = FirebaseAnalytics();
+
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
-  final FirebaseAnalytics analytics = FirebaseAnalytics();
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +33,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   _editName(BuildContext context) async {
     var name = await Navigator.push(
-        context, MaterialPageRoute(builder: (context) => EditPage(),settings: RouteSettings(name: 'HomeView')));
+        context,
+        MaterialPageRoute(
+            builder: (context) => EditPage(),
+            settings: RouteSettings(name: 'HomeView')));
 
     setState(() {
       _name = name;
@@ -57,6 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: RaisedButton(
                 onPressed: () {
                   _editName(context);
+                  analytics.logEvent(name: 'Edit_button_pressed');
                 },
                 child: Text("Edit"),
                 elevation: 5,
@@ -77,7 +82,7 @@ class EditPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Edit your name'),
+          title: Text('Edit_your_name'),
         ),
         body: Form(
           key: _key,
@@ -103,8 +108,9 @@ class EditPage extends StatelessWidget {
                   alignment: Alignment.bottomCenter,
                   child: RaisedButton(
                     onPressed: () {
-                      if (_key.currentState.validate()){
+                      if (_key.currentState.validate()) {
                         Navigator.pop(context, input.text);
+                        analytics.logEvent(name: "Save_Button_Pressed");
                       }
                     },
                     child: Text('Save'),
