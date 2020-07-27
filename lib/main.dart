@@ -1,3 +1,5 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -6,11 +8,16 @@ void main() {
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
+  final FirebaseAnalytics analytics = FirebaseAnalytics();
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Basic App',
       home: HomeScreen(),
+      navigatorObservers: [
+        FirebaseAnalyticsObserver(analytics: analytics),
+      ],
     );
   }
 }
@@ -25,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   _editName(BuildContext context) async {
     var name = await Navigator.push(
-        context, MaterialPageRoute(builder: (context) => EditPage()));
+        context, MaterialPageRoute(builder: (context) => EditPage(),settings: RouteSettings(name: 'HomeView')));
 
     setState(() {
       _name = name;
