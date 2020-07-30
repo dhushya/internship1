@@ -1,122 +1,58 @@
-import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:firebase_analytics/observer.dart';
+import 'package:counter/counter_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'bloc_observer.dart';
 
 void main() {
+  Bloc.observer = CounterObserver();
   runApp(MyApp());
 }
 
-final FirebaseAnalytics analytics = FirebaseAnalytics();
-
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Basic App',
-      home: HomeScreen(),
-      navigatorObservers: [
-        FirebaseAnalyticsObserver(analytics: analytics),
-      ],
-    );
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+        ),
+        home: BlocProvider(
+          create: (_) => CounterCubit(),
+          child: HomePage(),
+        ));
   }
 }
 
-class HomeScreen extends StatefulWidget {
-  @override
-  _HomeScreenState createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  var _name = "Piyush";
-
-  _editName(BuildContext context) async {
-    var name = await Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => EditPage(),
-            settings: RouteSettings(name: 'HomeView')));
-
-    setState(() {
-      _name = name;
-    });
-  }
-
+class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text("Basic App"),
-        ),
-        body: Column(
-          children: [
-            Expanded(
-              child: Center(
-                child: Text(_name),
-              ),
+      appBar: AppBar(
+        title: Text("Counter"),
+      ),
+      body: Center(
+        child: BlocBuilder<CounterCubit, int>(builder: (context, state) {
+          return Text("$state");
+        }),
+      ),
+      floatingActionButton: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: <Widget>[
+            FloatingActionButton(
+              key: const Key('counterView_increment_floatingActionButton'),
+              child: Icon(Icons.add),
+              onPressed: () => context.bloc<CounterCubit>().increment(),
             ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: RaisedButton(
-                onPressed: () {
-                  _editName(context);
-                  analytics.logEvent(name: 'Edit_button_pressed');
-                },
-                child: Text("Edit"),
-                elevation: 5,
-                textColor: Colors.white,
-                color: Colors.blue,
-              ),
-            )
-          ],
-        ));
-  }
-}
-
-class EditPage extends StatelessWidget {
-  final input = TextEditingController();
-  final _key = GlobalKey<FormState>();
-  final validCharacters = RegExp(r'^[a-zA-Z ]+$');
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: Text('Edit_your_name'),
-        ),
-        body: Form(
-          key: _key,
-          child: Column(
-            children: <Widget>[
-              Expanded(
-                child: Center(
-                    child: Container(
-                  margin: const EdgeInsets.only(left: 20.0, right: 20.0),
-                  child: TextFormField(
-                    controller: input,
-                    validator: (value) {
-                      if (!validCharacters.hasMatch(value)) {
-                        return "Name should only contain letters";
-                      } else {
-                        return null;
-                      }
-                    },
-                  ),
-                )),
-              ),
-              Align(
-                  alignment: Alignment.bottomCenter,
-                  child: RaisedButton(
-                    onPressed: () {
-                      if (_key.currentState.validate()) {
-                        Navigator.pop(context, input.text);
-                        analytics.logEvent(name: "Save_Button_Pressed");
-                      }
-                    },
-                    child: Text('Save'),
-                  ))
-            ],
-          ),
-        ));
+            const SizedBox(height: 8),
+            FloatingActionButton(
+              key: const Key('counterView_decrement_floatingActionButton'),
+              child: Icon(Icons.remove),
+              onPressed: () => context.bloc<CounterCubit>().decrement(),
+            ),
+          ]),
+    );
   }
 }
