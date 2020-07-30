@@ -1,4 +1,4 @@
-# internship1
+# counter
 
 A new Flutter project.
 
